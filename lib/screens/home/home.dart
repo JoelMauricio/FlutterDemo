@@ -21,7 +21,7 @@ class HomePageState extends State<HomePage> {
   late int total = 0;
   late List tasks = List.empty();
   late List completedTasks = List.empty();
-  void getData() async {
+  Future<void> getData() async {
     final List res = await supabase
         .from('todos')
         .select('*')
@@ -79,9 +79,10 @@ class HomePageState extends State<HomePage> {
           child: ElevatedButton(
             onPressed: () {
               showDialog(
-                  // add the create new reminder functionality
-                  context: context,
-                  builder: (BuildContext context) => newTaskDialog(context));
+                      // add the create new reminder functionality
+                      context: context,
+                      builder: (BuildContext context) => newTaskDialog(context))
+                  .then((value) => getData());
             },
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(),
@@ -205,7 +206,8 @@ class HomePageState extends State<HomePage> {
                                       Colors.red,
                                       Icons.delete_outline_outlined,
                                       size,
-                                      false),
+                                      false,
+                                      context),
                                   // right option
                                   secondaryBackground: dissmisableBackground(
                                       Theme.of(context)
@@ -214,7 +216,8 @@ class HomePageState extends State<HomePage> {
                                           .withOpacity(0.6),
                                       Icons.task_alt_rounded,
                                       size,
-                                      true),
+                                      true,
+                                      context),
                                   key: UniqueKey(),
                                   child: Padding(
                                     padding: const EdgeInsets.only(
@@ -276,8 +279,8 @@ Widget taskPlaceholder(BuildContext context, Size size) {
   );
 }
 
-Widget dissmisableBackground(
-    Color color, IconData iconData, Size size, bool isRight) {
+Widget dissmisableBackground(Color color, IconData iconData, Size size,
+    bool isRight, BuildContext context) {
   return Padding(
     padding: const EdgeInsets.only(bottom: kDefaultPadding / 2),
     child: Container(
@@ -285,6 +288,14 @@ Widget dissmisableBackground(
         borderRadius:
             const BorderRadius.all(Radius.circular(kDefaultPadding / 4)),
         color: color,
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
+            spreadRadius: .3,
+            blurRadius: 2,
+            blurStyle: BlurStyle.outer,
+          ),
+        ],
       ),
       alignment: isRight ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(

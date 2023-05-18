@@ -8,11 +8,16 @@ Widget newTaskDialog(BuildContext context) {
   final TextEditingController nombreTareaController = TextEditingController();
   Size size = MediaQuery.of(context).size;
 
+  void closeDialog() {
+    Navigator.of(context).pop();
+  }
+
   void handleNewTask() async {
-    await supabase.from('todos').insert({
+    final newTask = await supabase.from('todos').insert({
       'user_id': supabase.auth.currentUser?.id,
       'task': nombreTareaController.text
     });
+    closeDialog();
   }
 
   Dialog customDialog = Dialog(
