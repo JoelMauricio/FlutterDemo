@@ -83,7 +83,6 @@ class HomePageState extends State<HomePage> {
           child: ElevatedButton(
             onPressed: () {
               showDialog(
-                      // add the create new reminder functionality
                       context: context,
                       builder: (BuildContext context) => newTaskDialog(context))
                   .then((value) => getData());
@@ -102,7 +101,7 @@ class HomePageState extends State<HomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: const CustomAppBar(
-        title: 'Mis tareas',
+        title: 'Mis Tareas',
         isAuth: false,
       ),
       extendBodyBehindAppBar: true,
@@ -265,7 +264,7 @@ class HomePageState extends State<HomePage> {
                                   padding: const EdgeInsets.only(
                                       bottom: kDefaultPadding / 2),
                                   child: reminderContainer(
-                                      size, tareas[index], context),
+                                      size, tareas[index], context, false),
                                 ),
                               );
                             },

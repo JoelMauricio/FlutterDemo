@@ -57,11 +57,7 @@ class CompletedTasksPageState extends State<CompletedTasksPage> {
                 Expanded(
                   flex: 8,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: kDefaultPadding / 2,
-                      left: kDefaultPadding,
-                      right: kDefaultPadding,
-                    ),
+                    padding: const EdgeInsets.all(kDefaultPadding / 2),
                     child: completedTasks.isEmpty
                         ? Center(
                             child: taskPlaceholder(
@@ -75,8 +71,12 @@ class CompletedTasksPageState extends State<CompletedTasksPage> {
                             padding: const EdgeInsets.all(kDefaultPadding / 4),
                             itemCount: completedTasks.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return reminderContainer(
-                                  size, completedTasks[index], context);
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: kDefaultPadding / 2),
+                                child: reminderContainer(
+                                    size, completedTasks[index], context, true),
+                              );
                             },
                           ),
                   ),

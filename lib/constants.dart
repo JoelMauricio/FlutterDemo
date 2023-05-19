@@ -28,6 +28,7 @@ class AppTheme {
   AppTheme._();
   static final ThemeData lightTheme = ThemeData(
     scaffoldBackgroundColor: kLightBackground,
+    fontFamily: 'Roboto',
     colorScheme: const ColorScheme.light(
         primary: kPrimaryColor,
         secondary: kSecondaryColor,
@@ -40,6 +41,7 @@ class AppTheme {
 
   static final ThemeData darkTheme = ThemeData(
     scaffoldBackgroundColor: kDarkBackground,
+    fontFamily: 'Roboto',
     colorScheme: const ColorScheme.dark(
         primary: kDarkPrimaryColor,
         secondary: kDarkSecondaryColor,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:reminders_app/constants.dart';
 
-Widget reminderContainer(Size size, tarea, BuildContext context) {
+Widget reminderContainer(
+    Size size, tarea, BuildContext context, bool isAlternative) {
   return Container(
       height: size.height * 0.10,
       width: double.infinity,
@@ -42,37 +43,62 @@ Widget reminderContainer(Size size, tarea, BuildContext context) {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: kDefaultPadding / 10),
-                  child: Text(
-                    tarea['inserted_at'].toString().split('T')[0],
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: size.height * 0.015,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
               ],
             ),
             Flex(
-              direction: Axis.horizontal,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  tarea['inserted_at'].toString().split('T')[1].substring(0, 5),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: size.height * 0.035,
-                    // fontFamily:
-                  ),
+              direction: Axis.vertical,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Flex(
+                  direction: Axis.horizontal,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      isAlternative == true
+                          ? tarea['completed_time'].toString().split('T')[0]
+                          : tarea['inserted_at'].toString().split('T')[0],
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: size.height * 0.025,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: kDefaultPadding / 5),
+                      child: Icon(
+                        Icons.calendar_month_outlined,
+                        size: size.height * 0.025,
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: kDefaultPadding / 5),
-                  child: Icon(
-                    Icons.watch_later_outlined,
-                    size: size.height * 0.045,
-                  ),
+                Flex(
+                  direction: Axis.horizontal,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      isAlternative == true
+                          ? tarea['completed_time']
+                              .toString()
+                              .split('T')[1]
+                              .substring(0, 5)
+                          : tarea['inserted_at']
+                              .toString()
+                              .split('T')[1]
+                              .substring(0, 5),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: size.height * 0.02,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: kDefaultPadding / 5),
+                      child: Icon(
+                        Icons.watch_later_outlined,
+                        size: size.height * 0.025,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             )
