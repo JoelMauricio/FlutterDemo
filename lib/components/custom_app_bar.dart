@@ -11,8 +11,10 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.titleColor = kLightText,
     this.titleWidget,
     this.isAuth,
+    this.isReturnable = false,
   }) : super(key: key);
 
+  final bool? isReturnable;
   final bool? isAuth;
   final Color? titleColor;
   final String title;
@@ -64,7 +66,9 @@ class CustomAppBarState extends State<CustomAppBar> {
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: widget.isAuth == false
-                                ? Theme.of(context).colorScheme.onPrimary
+                                ? widget.isReturnable == false
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : kLightBackground
                                 : widget.titleColor,
                           ),
                         ),
@@ -82,15 +86,22 @@ class CustomAppBarState extends State<CustomAppBar> {
                     ? <Widget>[
                         IconButton(
                           onPressed: () {
-                            Scaffold.of(context).openDrawer();
+                            widget.isReturnable == false
+                                ? Scaffold.of(context).openDrawer()
+                                : Navigator.of(context)
+                                    .pushReplacementNamed('/');
                           },
                           iconSize: 32,
                           alignment: Alignment.center,
                           splashRadius: 15,
                           splashColor: Theme.of(context).colorScheme.tertiary,
                           icon: Icon(
-                            Icons.menu,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                            widget.isReturnable == false
+                                ? Icons.menu
+                                : Icons.arrow_back_outlined,
+                            color: widget.isReturnable == false
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : kLightBackground,
                           ),
                         ),
                         IconButton(
@@ -101,7 +112,9 @@ class CustomAppBarState extends State<CustomAppBar> {
                           splashColor: kSecondaryColor,
                           icon: Icon(
                             getTheme(),
-                            color: Theme.of(context).colorScheme.onPrimary,
+                            color: widget.isReturnable == false
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : kLightBackground,
                           ),
                         )
                       ]

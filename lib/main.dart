@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reminders_app/components/notifier.dart';
 import 'package:reminders_app/constants.dart';
+import 'package:reminders_app/screens/completed_tasks/completed_tasks.dart';
 import 'package:reminders_app/screens/home/home.dart';
 import 'package:reminders_app/screens/signUp/sign_up.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
             '/': (_) => const HomePage(),
             '/login': (_) => const LoginPage(),
             '/registration': (_) => const RegistrationPage(),
+            '/completed': (_) => const CompletedTasksPage(),
           },
           themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
         );

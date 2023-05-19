@@ -5,6 +5,7 @@ import 'package:reminders_app/screens/home/components/category_card.dart';
 import 'package:reminders_app/screens/home/components/drawer.dart';
 import 'package:reminders_app/screens/home/components/new_task_dialog.dart';
 import 'package:reminders_app/screens/home/components/reminder_container.dart';
+import 'package:reminders_app/screens/home/components/task_placeholder.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
@@ -25,21 +26,24 @@ class HomePageState extends State<HomePage> {
     final List res = await supabase
         .from('todos')
         .select('*')
-        .eq('user_id', session?.user.id);
+        .eq('user_id', session?.user.id)
+        .eq('is_deleted', false);
     final List res2 = await supabase
         .from('todos')
         .select(
           '*',
         )
         .eq('user_id', session?.user.id)
-        .eq('is_complete', false);
+        .eq('is_complete', false)
+        .eq('is_deleted', false);
     final List res3 = await supabase
         .from('todos')
         .select(
           '*',
         )
         .eq('user_id', session?.user.id)
-        .eq('is_complete', true);
+        .eq('is_complete', true)
+        .eq('is_deleted', false);
     setState(() {
       total = res.length;
       tasks = res2;
@@ -87,7 +91,7 @@ class HomePageState extends State<HomePage> {
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(),
               padding: const EdgeInsets.all(kDefaultPadding),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: kAccentColor.withOpacity(0.9),
             ),
             child: const Icon(
               Icons.add,
@@ -111,172 +115,177 @@ class HomePageState extends State<HomePage> {
     Size size = MediaQuery.of(context).size;
 
     void completeTask(tarea) async {
-      await supabase
-          .from('todos')
-          .update({'is_complete': true}).match({'id': tarea['id']});
+      await supabase.from('todos').update({
+        'is_complete': true,
+        'completed_time': DateTime.now().toIso8601String()
+      }).match({'id': tarea['id']});
       getData();
     }
 
-    return SizedBox(
-      height: size.height,
-      width: size.width,
-      child: Column(
-        children: [
-          const Expanded(
-            flex: 1,
-            child: SizedBox(),
-          ),
-          // Categories
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: kDefaultPadding,
-                left: kDefaultPadding,
-                right: kDefaultPadding,
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: kDefaultPadding / 2),
-                      child: Flex(
-                        direction: Axis.horizontal,
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          categoryCard(size, kAccentColor, 'Completados',
-                              Icons.task, kDarkText, total, completedAmount)
-                        ],
-                      ),
+    void deleteTask(tarea) async {
+      await supabase
+          .from('todos')
+          .update({'is_deleted': true}).match({'id': tarea['id']});
+      getData();
+    }
+
+    return Column(
+      children: [
+        const Expanded(
+          flex: 1,
+          child: SizedBox(),
+        ),
+        // Categories
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              bottom: kDefaultPadding,
+              left: kDefaultPadding,
+              right: kDefaultPadding,
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: kDefaultPadding / 2),
+                    child: Flex(
+                      direction: Axis.horizontal,
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        categoryCard(context, size, kAccentColor, 'Completados',
+                            Icons.task, kDarkText, total, completedAmount)
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          // tasks
-          Expanded(
-            flex: 7,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: kDefaultPadding / 2,
-                left: kDefaultPadding,
-                right: kDefaultPadding,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: (size.height * 0.4) * 0.1,
-                    width: double.maxFinite,
-                    child: Text(
-                      'Pendientes',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: size.height * 0.0225,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
+        ),
+        // tasks
+        Expanded(
+          flex: 7,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              bottom: kDefaultPadding / 2,
+              left: kDefaultPadding,
+              right: kDefaultPadding,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: (size.height * 0.4) * 0.1,
+                  width: double.maxFinite,
+                  child: Text(
+                    'Pendientes',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: size.height * 0.0225,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
-                  Expanded(
-                    flex: 6,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: kDefaultPadding / 10),
-                      child: tareas.isEmpty == true
-                          ? taskPlaceholder(context, size)
-                          : ListView.builder(
-                              padding:
-                                  const EdgeInsets.all(kDefaultPadding / 4),
-                              itemCount: amount,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Dismissible(
-                                  direction: DismissDirection.horizontal,
-                                  onDismissed: (DismissDirection direction) {
-                                    if (direction ==
-                                        DismissDirection.endToStart) {
-                                      completeTask(tareas[index]);
-                                    } else if (direction ==
-                                        DismissDirection.startToEnd) {
-                                      // deleteTask(tareas[index]);
-                                    }
-                                  },
-                                  //left option
-                                  background: dissmisableBackground(
-                                      Colors.red,
-                                      Icons.delete_outline_outlined,
-                                      size,
-                                      false,
-                                      context),
-                                  // right option
-                                  secondaryBackground: dissmisableBackground(
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .tertiary
-                                          .withOpacity(0.6),
-                                      Icons.task_alt_rounded,
-                                      size,
-                                      true,
-                                      context),
-                                  key: UniqueKey(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: kDefaultPadding / 2),
-                                    child: reminderContainer(
-                                        size, tareas[index], context),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
+                ),
+                Expanded(
+                  flex: 6,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: kDefaultPadding / 10),
+                    child: tareas.isEmpty == true
+                        ? taskPlaceholder(context, size, Icons.find_in_page,
+                            'Parece que no tienes tareas pendientes.', false)
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(kDefaultPadding / 4),
+                            itemCount: amount,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Dismissible(
+                                dismissThresholds: const {
+                                  DismissDirection.horizontal: 0.8
+                                },
+                                confirmDismiss: (direction) async {
+                                  if (direction ==
+                                      DismissDirection.startToEnd) {
+                                    final bool res = await showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            content: Text(
+                                                "Seguro que desea eliminar la tarea: ${tareas[index]['task']}?"),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: const Text(
+                                                  "Cancel",
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(false);
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: const Text(
+                                                  "Delete",
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                ),
+                                                onPressed: () {
+                                                  deleteTask(tareas[index]);
+                                                  Navigator.of(context)
+                                                      .pop(true);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                    return res;
+                                  } else {
+                                    completeTask(tareas[index]);
+                                  }
+                                },
+                                direction: DismissDirection.horizontal,
+                                //left option
+                                background: dissmisableBackground(
+                                    Colors.red,
+                                    Icons.delete_outline_outlined,
+                                    size,
+                                    false,
+                                    context),
+                                // right option
+                                secondaryBackground: dissmisableBackground(
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .tertiary
+                                        .withOpacity(0.6),
+                                    Icons.task_alt_rounded,
+                                    size,
+                                    true,
+                                    context),
+                                key: UniqueKey(),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: kDefaultPadding / 2),
+                                  child: reminderContainer(
+                                      size, tareas[index], context),
+                                ),
+                              );
+                            },
+                          ),
                   ),
-                  const SizedBox(
-                    height: kDefaultPadding * 2,
-                  )
-                ],
-              ),
+                ),
+                const SizedBox(
+                  height: kDefaultPadding * 2,
+                )
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
 Widget _placeholder() {
   return const Placeholder();
-}
-
-Widget taskPlaceholder(BuildContext context, Size size) {
-  return Center(
-    child: Padding(
-      padding: const EdgeInsets.all(kDefaultPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            height: size.height / 4,
-            width: size.width / 2,
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.secondary),
-            child: Icon(
-              Icons.find_in_page,
-              color: Theme.of(context).colorScheme.tertiary,
-              size: size.height / 6,
-            ),
-          ),
-          const SizedBox(
-            height: kDefaultPadding,
-          ),
-          Text(
-            'Parece que no tienes tareas pendientes.',
-            style: TextStyle(fontSize: size.height * 0.025),
-          )
-        ],
-      ),
-    ),
-  );
 }
 
 Widget dissmisableBackground(Color color, IconData iconData, Size size,
